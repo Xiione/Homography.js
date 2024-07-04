@@ -22,9 +22,9 @@
  */
 
 // In NPM
-    //import Delaunator from 'delaunator';
+    import Delaunator from 'delaunator';
 // In JS
-    import Delaunator from 'https://cdn.skypack.dev/delaunator@5.0.0';
+    // import Delaunator from 'https://cdn.skypack.dev/delaunator@5.0.0';
 
     
 const availableTransforms = ['auto', 'piecewiseaffine', 'affine', 'projective'];
@@ -700,8 +700,22 @@ class Homography {
                 }
                 this._transformMatrix = calculateTransformMatrix(this.transform, this._srcPoints, this._dstPoints);
             }
-            // Set the output width and height variables to the limits of the estimated transformation
-            [this._xOutputOffset, this._yOutputOffset, this._objectiveWidth, this._objectiveHeight] = calculateTransformLimits(this._transformMatrix, this._width, this._height); 
+
+            // always constrain output to bounds given by destination points
+            if (!this._dstPointsAreNormalized) {
+                [this._xOutputOffset, this._yOutputOffset, this._objectiveWidth, this._objectiveHeight] = minmaxXYofArray(this._dstPoints);
+
+                this._objectiveWidth = this._objectiveWidth - this._xOutputOffset;
+                this._objectiveHeight = this._objectiveHeight - this._yOutputOffset;
+            } else if (this._width > 0 && this._height > 0){
+                const [minDstX, minDstY , maxDstX, maxDstY] = minmaxXYofArray(this._dstPoints, false);
+                this._xOutputOffset = Math.round(minDstX);
+                this._yOutputOffset = Math.round(minDstY);
+                this._objectiveWidth = Math.round((maxDstX-minDstX)*this._width);
+                this._objectiveHeight = Math.round((maxDstY-minDstY)*this._height);
+            } else {
+                [this._xOutputOffset, this._yOutputOffset, this._objectiveWidth, this._objectiveHeight] = calculateTransformLimits(this._transformMatrix, this._width, this._height); 
+            }
         // If piecewise transform is selected try if, at least, dstPoints are no normalized, so output width and height can be extracted from here. 
         } else if (!this._dstPointsAreNormalized){
             [this._xOutputOffset, this._yOutputOffset, this._objectiveWidth, this._objectiveHeight] = minmaxXYofArray(this._dstPoints);

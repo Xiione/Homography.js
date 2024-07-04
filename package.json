@@ -8,7 +8,7 @@
     "test": "test"
   },
   "dependencies": {
-    "delaunator": "^5.0.0"
+    "delaunator": "^5.0.1"
   },
   "scripts": {
     "test": "node ./test/nodeTest.js"

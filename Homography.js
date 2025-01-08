@@ -77,8 +77,9 @@ class Homography {
      */
     constructor(transform = 'auto', width=null, height=null){
         // Width and Height refers to the input image. If width and height are given it will be resized.
-        if (width !== null) width = Math.round(width);
-        if (height !== null) height = Math.round(height);
+        if (width !== null) width = Math.round(width); else width = 0;
+        if (height !== null) height = Math.round(height); else height = 0;
+        
         // Sets the source width and height
         this._width = width;
         this._height = height;
@@ -236,7 +237,7 @@ class Homography {
         if (image !== null){
             this.setImage(image, width, height);
         // If no image was given but height and width were, set them.
-        } else if (width !== null || height !== null){
+        } else if (width && height){
             this._setSrcWidthHeight(width, height); //It will denormalize the srcPoints array
         }
         // Denormalize points if there is enough information for it.
@@ -610,7 +611,7 @@ class Homography {
 
      transformHTMLElement(element, srcPoints = null, dstPoints = null){
         const elementRect = element.getBoundingClientRect();;
-        element.style.transform = this.getTransformationMatrixAsCSS(srcPoints, dstPoints, elementRect.width, elementRect.height);
+        element.style.transform = this.getTransformationMatrixAsCSS(srcPoints, dstPoints, 0, 0);
      }
 
 
